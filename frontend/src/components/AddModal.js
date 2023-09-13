@@ -36,7 +36,7 @@ const AddModal = ({
   formType,
   selectedCar,
   getCarsData,
-  carsList,
+  setIsLoading,
 }) => {
   const isViewForm = () => formType === "view";
   const isUpdateForm = () => formType === "update";
@@ -58,6 +58,7 @@ const AddModal = ({
 
   const onSubmit = (car) => {
     if (isUpdateForm()) {
+      setIsLoading(true);
       fetch(`${process.env.REACT_APP_API_URL}/cars/${selectedCar._id}`, {
         method: "PUT",
         headers: {
@@ -66,22 +67,21 @@ const AddModal = ({
         body: JSON.stringify(car),
       })
         .then((response) => {
-          response.json().then((resp) => {
-            console.log("Updated Car", resp);
-            // getCarsData();
-          });
+          getCarsData();
+          setShow(false);
+          setIsLoading(false);
         })
         .catch((error) => {
           console.error("Error:", error);
         });
-      setShow(false);
-      getCarsData();
     } else {
+      setIsLoading(true);
       fetch(`${process.env.REACT_APP_API_URL}/cars`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(car),
       }).then((response) => {
+        setIsLoading(false);
         console.log("result", response);
       });
 
@@ -90,6 +90,7 @@ const AddModal = ({
       getCarsData();
     }
   };
+
   const handleClose = () => {
     reset();
     setShow(false);
@@ -116,6 +117,7 @@ const AddModal = ({
             <br></br>
 
             <input
+            className="input_field"
               type="text"
               id="name"
               name="name"
@@ -123,14 +125,15 @@ const AddModal = ({
               disabled={isViewForm()}
             />
             <p className="error-message">{errors.name?.message}</p>
-            <br></br>
+           
 
             {/*  */}
             <label htmlFor="type">
               <strong>Type</strong>
             </label>
             <select
-              style={{ display: "flex", width: "40%", height: "30px" }}
+            className="input_field"
+              style={{ display: "flex", width: "100%", height: "3rem" }}
               id="type"
               name="type"
               {...register("type")}
@@ -145,12 +148,12 @@ const AddModal = ({
             </select>
 
             <p className="error-message">{errors.type?.message}</p>
-            <br></br>
+            
             <label htmlFor="year">
               <strong>Year</strong>
             </label>
-            <br></br>
             <input
+            className="input_field"
               type="text"
               id="year"
               name="year"
@@ -158,12 +161,13 @@ const AddModal = ({
               disabled={isViewForm()}
             />
             <p className="error-message">{errors.year?.message}</p>
-            <br></br>
+           
             <label htmlFor="mileage" className="label">
               <strong>Mileage</strong>
             </label>
             <br></br>
             <input
+            className="input_field"
               type="text"
               id="mileage"
               name="mileage"
@@ -171,11 +175,12 @@ const AddModal = ({
               disabled={isViewForm()}
             />
             <p className="error-message">{errors.mileage?.message}</p>
-            {!isViewForm() && <Button type="submit">Submit</Button>}
+            {!isViewForm() && <Button type="submit" className="submit_btn">Submit</Button>}
             <Button
               variant="secondary"
               onClick={handleClose}
               style={{ marginLeft: "10px" }}
+              className="close_btn"
             >
               Close
             </Button>

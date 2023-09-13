@@ -1,12 +1,24 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Button, Table } from "react-bootstrap";
 import AddModal from "../AddModal";
+import Loader from "../loader/Loader";
+const CarsType = {
+  aventador: "Aventador",
+  huracan: "Huracan",
+  land_cruiser: "Land Cruiser Prado",
+  type_r: "Type R",
+  type_s: "Type S",
+  sedans: "Sedans",
+  stype_uvs: "SUVs",
+  fortuner: "Fortuner",
+};
 
 const TableData = () => {
   const [show, setShow] = useState(false);
   const [formType, setFormType] = useState("create");
   const [carsList, setCarsList] = useState([]);
   const [selectedCar, setSelectedCar] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleUpdate = (car) => {
     setSelectedCar(car);
@@ -28,14 +40,15 @@ const TableData = () => {
   //-----------------------Delete Car--------------------------
 
   const handleDelete = (carId) => {
+    setIsLoading(true);
     fetch(`${process.env.REACT_APP_API_URL}/cars/${carId}`, {
       method: "DELETE",
     })
       .then((response) => {
         console.log("Deleted Car", response);
         getCarsData();
+        setIsLoading(false);
       })
-
       .catch((error) => {
         console.error("Error:", error);
       });
@@ -43,10 +56,12 @@ const TableData = () => {
 
   //----------------------------insert car ----------------------
   const getCarsData = () => {
+    setIsLoading(true);
     fetch(`${process.env.REACT_APP_API_URL}/cars`)
       .then((response) => {
         response.json().then((result) => {
           setCarsList(result.data);
+          setIsLoading(false);
         });
       })
       .catch((error) => {
@@ -71,7 +86,7 @@ const TableData = () => {
       <Button
         variant="primary"
         onClick={handleCreate}
-        style={{ display: "flex", marginLeft: "40px", marginBottom: "40px" }}
+        style={{ display: "flex" ,marginLeft: "40px", marginBottom: "40px" ,width: "15% " , height: "50px" , paddingLeft: "40px" , paddingTop: "10px"}}
       >
         Add Cars
       </Button>
@@ -82,8 +97,11 @@ const TableData = () => {
           selectedCar={selectedCar}
           getCarsData={getCarsData}
           carsList={carsList}
+          setIsLoading={setIsLoading}
         />
       )}
+
+      {isLoading && <Loader />}
 
       <Table striped bordered hover>
         <thead>
@@ -101,7 +119,7 @@ const TableData = () => {
             <tr key={car._id}>
               <td>{car._id}</td>
               <td>{car.name}</td>
-              <td>{car.type}</td>
+              <td>{CarsType[car.type]}</td>
               <td>{car.year}</td>
               <td>{car.mileage}</td>
               <td>
